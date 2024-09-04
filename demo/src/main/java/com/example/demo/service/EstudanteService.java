@@ -1,46 +1,48 @@
 package com.example.demo.service;
 
 import com.example.demo.database.entities.Estudante;
+import com.example.demo.database.repositories.EstudanteRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class EstudanteService {
-    private List<Estudante> estudantes = new ArrayList<>();
+
+    final EstudanteRepository estudanteRepository;
 
     public Estudante cadastrarEstudante(String nome, String matricula) {
         Estudante estudante = new Estudante();
         estudante.setNome(nome);
         estudante.setMatricula(matricula);
-        estudantes.add(estudante);
+        estudanteRepository.save(estudante);
         return estudante;
     }
 
     public List<Estudante> listarEstudantes() {
-        return estudantes;
+        return estudanteRepository.findAll();
     }
 
     public Estudante buscarEstudantePorId(Long id) {
-        Optional<Estudante> estudante = estudantes.stream().filter(e -> e.getId().equals(id)).findFirst();
-        if (estudante.isPresent()) {
-            return estudante.get();
-        } else {
-            throw new RuntimeException("Estudante não encontrado");
-        }
+        return estudanteRepository.findById(id)
+                .orElseThrow(
+                    () ->{
+                        throw new RuntimeException("Estudante não encontrado");
+                    }
+        );
     }
 
     public Estudante atualizarEstudante(Long id, String novoNome, String novaMatricula) {
         Estudante estudante = buscarEstudantePorId(id);
         estudante.setNome(novoNome);
         estudante.setMatricula(novaMatricula);
+        estudanteRepository.save(estudante);
         return estudante;
     }
 
     public void removerEstudante(Long id) {
-        Estudante estudante = buscarEstudantePorId(id);
-        estudantes.remove(estudante);
+        estudanteRepository.deleteById(id);
     }
 }

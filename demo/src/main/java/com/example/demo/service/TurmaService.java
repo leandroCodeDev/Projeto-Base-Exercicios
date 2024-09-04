@@ -2,45 +2,43 @@ package com.example.demo.service;
 
 import com.example.demo.database.entities.Estudante;
 import com.example.demo.database.entities.Turma;
+import com.example.demo.database.repositories.TurmaRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class TurmaService {
-    private List<Turma> turmas = new ArrayList<>();
+    final TurmaRepository turmaRepository;
 
     public Turma cadastrarTurma(String nome) {
         Turma turma = new Turma();
         turma.setNome(nome);
-        turmas.add(turma);
+        turmaRepository.save(turma);
         return turma;
     }
 
     public List<Turma> listarTurmas() {
-        return turmas;
+        return turmaRepository.findAll();
     }
 
     public Turma buscarTurmaPorId(Long id) {
-        Optional<Turma> turma = turmas.stream().filter(t -> t.getId().equals(id)).findFirst();
-        if (turma.isPresent()) {
-            return turma.get();
-        } else {
+        return turmaRepository.findById(id).orElseThrow( ()-> {
             throw new RuntimeException("Turma não encontrada");
-        }
+        });
     }
 
     public Turma atualizarTurma(Long id, String novoNome) {
         Turma turma = buscarTurmaPorId(id);
         turma.setNome(novoNome);
+        turmaRepository.save(turma);
         return turma;
     }
 
     public void removerTurma(Long id) {
-        Turma turma = buscarTurmaPorId(id);
-        turmas.remove(turma);
+        turmaRepository.deleteById(id);
     }
 
     public Estudante adicionarEstudanteNaTurma(Long turmaId, Estudante estudante) {
