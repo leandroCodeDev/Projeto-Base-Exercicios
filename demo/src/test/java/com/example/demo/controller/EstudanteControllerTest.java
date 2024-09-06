@@ -66,7 +66,7 @@ class EstudanteControllerTest {
         MvcResult mvcResult = mockMvc.perform(get("/estudantes/{id}",1L))
                 .andExpect(status().isOk())
                 .andReturn();
-//        assertEquals(estudante, mvcResult.getResponse().getContentAsString());
+        assertEquals("{\"id\":1,\"nome\":\"Joaquino\",\"matricula\":\"11.22.33\",\"turma\":[]}", mvcResult.getResponse().getContentAsString());
     }
 
     @Test
@@ -75,7 +75,7 @@ class EstudanteControllerTest {
                  estudante.getMatricula()))
             .thenReturn(estudante);
 
-        mockMvc.perform(
+        MvcResult mvcResult = mockMvc.perform(
                         post("/estudantes")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\n" +
@@ -83,16 +83,20 @@ class EstudanteControllerTest {
                                         "\t\"matricula\": \""+ estudante.getMatricula()+"\"\n" +
                                         "}")
                 )
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn();
+        assertEquals("{\"id\":1,\"nome\":\"Joaquino\",\"matricula\":\"11.22.33\",\"turma\":[]}", mvcResult.getResponse().getContentAsString());
     }
 
     @Test
     void atualizarEstudante() throws Exception {
-        when(estudanteService.buscarEstudantePorId(anyLong()))
+        var novoNome = "novoAluno";
+        estudante.setNome(novoNome);
+        when(estudanteService.atualizarEstudante(anyLong(),anyString(),anyString()))
                 .thenReturn(estudante);
 
-        var novoNome = "novoAluno";
-        mockMvc.perform(
+
+        MvcResult mvcResult = mockMvc.perform(
                         put("/estudantes/{id}",1L)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\n" +
@@ -100,7 +104,10 @@ class EstudanteControllerTest {
                                         "\t\"matricula\": \""+ estudante.getMatricula()+"\"\n" +
                                         "}")
                 )
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertEquals("{\"id\":1,\"nome\":\""+novoNome+"\",\"matricula\":\"11.22.33\",\"turma\":[]}", mvcResult.getResponse().getContentAsString());
     }
 
     @Test
