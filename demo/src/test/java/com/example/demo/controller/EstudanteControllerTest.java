@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.database.entities.Estudante;
+import com.example.demo.database.entities.Turma;
 import com.example.demo.service.EstudanteService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,6 +67,7 @@ class EstudanteControllerTest {
         MvcResult mvcResult = mockMvc.perform(get("/estudantes/{id}",1L))
                 .andExpect(status().isOk())
                 .andReturn();
+        verify(estudanteService).buscarEstudantePorId(anyLong());
         assertEquals("{\"id\":1,\"nome\":\"Joaquino\",\"matricula\":\"11.22.33\",\"turma\":[]}", mvcResult.getResponse().getContentAsString());
     }
 
@@ -105,6 +107,7 @@ class EstudanteControllerTest {
                                         "}")
                 )
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value(novoNome))
                 .andReturn();
 
         assertEquals("{\"id\":1,\"nome\":\""+novoNome+"\",\"matricula\":\"11.22.33\",\"turma\":[]}", mvcResult.getResponse().getContentAsString());
